@@ -19,7 +19,8 @@ class NapsterServer:
         for peer_address, peer_info in self.peers.items():
             files = peer_info['files']
             if search_query in files:
-                response += f'{peer_address}'
+
+                response += f'{peer_address}:{peer_info["port"]}'
         return response.strip()
 #Função UPDATE, Recebe o arquivo, e atualiza o indice com o novo arquivo baixado    
     def update_peer_files(self, peer_address, file_name):
