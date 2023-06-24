@@ -23,7 +23,12 @@ class NapsterClient:
     def search_files(self, search_query):
         message = f'SEARCH {search_query} {self.server_ip}:{self.peer_port}'
         response = self.send_message(message)
-        print(f'Peers com o arquivo solicitado: {response}')
+        if response == '':
+            print("Arquivo não encontrado")
+            return 0
+        else:
+            print(f'Peers com o arquivo solicitado: {response}')
+            return 1
 #Função para inciar o Peer como um servidor e ele estar disponível para receber conexões TCP
     def start_server(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,7 +60,7 @@ class NapsterClient:
         # Definir o tipo de mídia como "video/mp4" para arquivos .mp4
         file_type = 'video/mp4'
 
-        # Enviar o cabeçalho com o tipo de mídia correto
+        #Enviar o cabeçalho com o tipo de mídia correto
         header = f"HTTP/1.1 200 OK\r\nContent-Type: {file_type}\r\n\r\n"
         client_socket.send(header.encode())
         with open(file_path, 'rb') as file:
@@ -143,12 +148,13 @@ def main():
                 server_thread.start()
         elif option == '2':
             search_query = input('Digite o termo de busca: ')
-            client.search_files(search_query)
-            file_name = search_query
-            option = input('Se deseja fazer o download digite 3 ou qualquer outra tecla para voltar ao menu: ')
-            if option == '3':
-                peer_address = input('Digite o endereço IP:porta do peer: ')
-                client.download_file(file_name, peer_address)
+            results = client.search_files(search_query)
+            if results == 1:
+                file_name = search_query
+                option = input('Se deseja fazer o download digite 3 ou qualquer outra tecla para voltar ao menu: ')
+                if option == '3':
+                    peer_address = input('Digite o endereço IP:porta do peer: ')
+                    client.download_file(file_name, peer_address)
         elif option == '4':
            server_thread.join(timeout=1)
            break
