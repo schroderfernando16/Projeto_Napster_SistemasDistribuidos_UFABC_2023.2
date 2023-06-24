@@ -17,7 +17,12 @@ class NapsterServer:
             if search_query in files:
                 response += f'{peer_address} '
         return response.strip()
-
+    
+    def update_peer_files(self, peer_address, file_name):
+        if peer_address in self.peers:
+            self.peers[peer_address].append(file_name)
+        else:
+            self.peers[peer_address] = [file_name]
 
     def download(self, peer_address, file_name):
         peer_ip, peer_port = peer_address.split(':')
@@ -58,6 +63,11 @@ class NapsterServer:
         elif command == 'SEARCH':
             search_query = message_parts[1]
             response = self.search(search_query)
+        elif command == 'UPDATE':
+                file_name = message_parts[1]
+                self.update_peer_files(peer_address, file_name)
+                response = 'UPDATE_OK'
+                print(response)
         elif command == 'DOWNLOAD':
             file_name = message_parts[1]
             if peer_address in self.peers:
