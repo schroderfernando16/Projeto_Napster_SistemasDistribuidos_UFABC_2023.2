@@ -83,7 +83,8 @@ class NapsterClient:
                     if not data:
                         break
                     file.write(data)
-
+        if response == 'UPDATE_OK':
+            print('Arquivo baixado atualizado com sucesso.')
         client_socket.close()
         return response
     
@@ -113,10 +114,15 @@ class NapsterClient:
         message = f'DOWNLOAD {file_name}'
         file_path = os.path.join(self.download_folder, file_name)
         self.send_dowloand_message(message, ip, int(port), file_path)
+        update_message = f'UPDATE {file_name}'
+        response = self.send_message(update_message, self.server_ip, self.server_port, None)
+        if response == 'UPDATE_OK':
+            print(response)
 
     def close_server(self):
         if self.server_socket:
             self.server_socket.close()
+    
 
 def main():
     client = NapsterClient('localhost', 5000)
@@ -126,7 +132,7 @@ def main():
         print('Selecione uma opção:')
         print('1 - Join')
         print('2 - Search Files')
-        print('3 - Update')
+        print('3 - Download (somente após uma busca)')
         print('4 - Fechar o programa')
 
         option = input('Opção: ')
@@ -146,12 +152,13 @@ def main():
             search_query = input('Digite o termo de busca: ')
             client.search_files(search_query)
             file_name = search_query
-            peer_address = input('Digite o endereço IP:porta do peer: ')
-            client.download_file(file_name, peer_address)
-        elif option == '3':
-            print('Opção de atualização selecionada')
-            # Implemente a lógica de atualização do cliente aqui
+            option = input('Se deseja fazer o download digite 3: ')
+            if option == '3':
+                peer_address = input('Digite o endereço IP:porta do peer: ')
+                client.download_file(file_name, peer_address)
+
         elif option == '4':
+            client.close_server()
             quit()
         else:
             print('Opção inválida. Tente novamente.')
