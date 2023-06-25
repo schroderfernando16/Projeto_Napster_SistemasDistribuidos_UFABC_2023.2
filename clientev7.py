@@ -64,10 +64,11 @@ class NapsterClient:
         header = f"HTTP/1.1 200 OK\r\nContent-Type: {file_type}\r\n\r\n"
         client_socket.send(header.encode())
         with open(file_path, 'rb') as file:
-            data = file.read(1024)
+            data = file.read(1024) #quebrando o arquivo em diversas partes de 1024b
             while data:
                 client_socket.sendall(data)
                 data = file.read(1024)
+
 #Método para mandar mensagem a um outro servidor, utilizando a parte de sockets
     def send_message(self, message, ip=None, port=None, file_path=None):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
